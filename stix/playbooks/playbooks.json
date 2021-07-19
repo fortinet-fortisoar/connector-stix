@@ -1,0 +1,726 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - STIX - 1.0.0",
+      "description": "Sample playbooks for \"STIX\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "/api/3/images/175a866d-6170-4fc3-a709-c3dd9ca086c0",
+      "uuid": "6ba2fe73-1eef-40a9-89e8-6b81be363eba",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> Extract Indicators From STIX File > Import Indicators in FortiSOAR",
+          "aliasName": null,
+          "description": "Extract indicators from the submitted STIX file and created those indicators in FortiSOAR",
+          "collection": "/api/3/workflow_collections/6ba2fe73-1eef-40a9-89e8-6b81be363eba",
+          "tag": null,
+          "isActive": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "id",
+            "name",
+            "tags",
+            "created",
+            "modified",
+            "indicators",
+            "valid_from",
+            "description",
+            "spec_version"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/fa6ff87e-1fbf-4ec8-b917-5c2adbf6648c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "stix_id": "{{vars.input.params.id}}",
+                "stix_name": "{{vars.input.params.name}}",
+                "stix_tags": "{{vars.input.params.tags}}",
+                "stix_created": "{{(arrow.get(vars.input.params.created).timestamp)}}",
+                "stix_modified": "{{(arrow.get(vars.input.params.modified).timestamp)}}",
+                "stix_indicators": "{% set iocs=[] %}{% for k,v in vars.input.params.indicators.items() %}{% for ioc in v %}{% set _=iocs.append({\"key\": k, \"value\": ioc}) %}{% endfor %}{% endfor %}{{iocs}}",
+                "stix_valid_from": "{{(arrow.get(vars.input.params.valid_from).timestamp)}}",
+                "stix_description": "{{vars.input.params.description}}",
+                "stix_spec_version": "{{vars.input.params['spec_version']}}",
+                "Indicator_Type_Map": "{\n\"domains\": {{\"IndicatorType\" | picklist(\"Domain\")}}, \"email_addresses\":{{\"IndicatorType\" | picklist(\"Email Address\")}}, \"md5s\":{{\"IndicatorType\" | picklist(\"FileHash-MD5\")}}, \"sha1s\":{{\"IndicatorType\" | picklist(\"FileHash-SHA1\")}}, \"sha256s\":{{\"IndicatorType\" | picklist(\"FileHash-SHA256\")}}, \"ipv4s\":{{\"IndicatorType\" | picklist(\"IP V4 Address\")}}, \"ipv4_cidrs\":{{\"IndicatorType\" | picklist(\"IP V4 CIDR Address\")}}, \"ipv6s\":{{\"IndicatorType\" | picklist(\"IP V6 Address\")}}, \"registry_key_paths\": {{\"IndicatorType\" | picklist(\"Registry\")}}, \"urls\":{{\"IndicatorType\" | picklist(\"URL\")}}, \"user_agents\":{{\"IndicatorType\" | picklist(\"User\")}}\n}"
+              },
+              "status": null,
+              "left": "125",
+              "top": "165",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "uuid": "0c93e12b-a990-4b36-8353-8e9ffdacecd6"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Indicators",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.stix_indicators}}",
+                  "__bulk": false,
+                  "parallel": false,
+                  "condition": ""
+                },
+                "resource": {
+                  "value": "{{vars.item.value}}",
+                  "sources": "{{vars.stix_spec_version}}",
+                  "lastSeen": "{{vars.stix_modified}}",
+                  "__replace": "true",
+                  "firstSeen": "{{vars.stix_created}}",
+                  "validFrom": "{{vars.stix_valid_from}}",
+                  "recordTags": "{% for tag in vars.stix_tags %}{{tag | replace('-',' ')}}{% endfor %}",
+                  "description": "\nStix Indicator Inforamtation\n| Feild | Value |\n| --- | --- |\n| ID | {{vars.stix_id}} |\n| Name | {{vars.stix_name}} |\n| Description | {{vars.stix_description}} |",
+                  "indicatorStatus": {
+                    "id": 369,
+                    "@id": "/api/3/picklists/2f5cff61-fbff-4bb3-96be-302b78a9fb47",
+                    "icon": null,
+                    "@type": "Picklist",
+                    "color": null,
+                    "display": "TBD",
+                    "@context": "/api/3/contexts/Picklist",
+                    "listName": "/api/3/picklist_names/e6639d57-94a9-432f-a46f-b2b530402077",
+                    "itemValue": "TBD",
+                    "orderIndex": 3
+                  },
+                  "typeofindicator": "{{vars.Indicator_Type_Map[vars.item.key]}}"
+                },
+                "_showJson": false,
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/indicators",
+                "fieldOperation": {
+                  "recordTags": "Overwrite"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "left": "125",
+              "top": "300",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "uuid": "2483ffac-2724-4f60-a50d-b21e4c984a58"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": []
+              },
+              "status": null,
+              "left": "125",
+              "top": "30",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "uuid": "fa6ff87e-1fbf-4ec8-b917-5c2adbf6648c"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "11e599a5-cdd6-40b4-a10f-d4a0bf2ff5f4",
+              "name": "Configuration -> Create Indicators",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/2483ffac-2724-4f60-a50d-b21e4c984a58",
+              "sourceStep": "/api/3/workflow_steps/0c93e12b-a990-4b36-8353-8e9ffdacecd6"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "24945ad5-8080-4d58-894d-2c485a8f3dbd",
+              "name": "Start -> Configuration",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/0c93e12b-a990-4b36-8353-8e9ffdacecd6",
+              "sourceStep": "/api/3/workflow_steps/fa6ff87e-1fbf-4ec8-b917-5c2adbf6648c"
+            }
+          ],
+          "versions": null,
+          "lastModifyDate": 1623129870,
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "1e2eb76f-a9b2-4bcb-bc1b-6b1632d65d37",
+          "recordTags": [
+            "STIX"
+          ],
+          "isPrivate": false,
+          "owners": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Extract Indicators From STIX File",
+          "aliasName": null,
+          "description": "Extract indicators from the submitted STIX file",
+          "collection": "/api/3/workflow_collections/6ba2fe73-1eef-40a9-89e8-6b81be363eba",
+          "tag": null,
+          "isActive": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/a8096d6a-41df-4a30-9b6c-c234fab1f5f9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract Indicators From STIX File",
+              "description": null,
+              "arguments": {
+                "name": "STIX",
+                "config": "83a5c5a4-017e-4cbf-b549-64e0be9ef700",
+                "params": {
+                  "file_id": "{{vars.input.records[0].file['@id']}}"
+                },
+                "version": "1.0.0",
+                "connector": "stix",
+                "operation": "extract_indicators",
+                "operationTitle": "Extract Indicators From STIX File",
+                "pickFromTenant": false,
+                "step_variables": {
+                  "iocs": "{{vars.result.data| json_query(\"[].indicators\")}}"
+                }
+              },
+              "status": null,
+              "left": "125",
+              "top": "165",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "0e08a874-2378-4554-91ab-83c9b51d5747"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Indicators",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.steps.Extract_Indicators_From_STIX_File.data}}",
+                  "condition": ""
+                },
+                "arguments": {
+                  "id": "{{vars.item.id}}",
+                  "name": "{{vars.item.name}}",
+                  "tags": "{{vars.item.tags}}",
+                  "created": "{{vars.item.created}}",
+                  "modified": "{{vars.item.modified}}",
+                  "indicators": "{{vars.item.indicators}}",
+                  "valid_from": "{{vars.item['valid_from']}}",
+                  "description": "{{vars.item.description}}",
+                  "spec_version": "{{vars.item['stix_version']}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "workflowReference": "/api/3/workflows/1e2eb76f-a9b2-4bcb-bc1b-6b1632d65d37"
+              },
+              "status": null,
+              "left": "125",
+              "top": "300",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "uuid": "a30d4cbf-2795-4320-adf2-efe8f7dc53b4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1cfa46c3-a4ab-4fe8-a4dc-c1397f830b11",
+                "resources": [
+                  "attachments"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records}}"
+                  },
+                  "loggedInUser": "{{vars.currentUser | fromIRI }}"
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  },
+                  "attachments": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "left": "125",
+              "top": "30",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "a8096d6a-41df-4a30-9b6c-c234fab1f5f9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "6d9d89a9-59fc-4a9a-93a6-921a497bdf24",
+              "name": "Start -> Extract Indicators From STIX File",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/0e08a874-2378-4554-91ab-83c9b51d5747",
+              "sourceStep": "/api/3/workflow_steps/a8096d6a-41df-4a30-9b6c-c234fab1f5f9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "e4bea564-8213-4764-9dc3-fbefe2a1157a",
+              "name": "Extract Indicators From STIX File -> Create Indicators",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/a30d4cbf-2795-4320-adf2-efe8f7dc53b4",
+              "sourceStep": "/api/3/workflow_steps/0e08a874-2378-4554-91ab-83c9b51d5747"
+            }
+          ],
+          "versions": null,
+          "lastModifyDate": 1623129834,
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "244c3a03-785f-49b5-83f2-3f1d65aa74d4",
+          "recordTags": [
+            "STIX"
+          ],
+          "isPrivate": false,
+          "owners": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Export Indicators in STIX Spec",
+          "aliasName": null,
+          "description": "Exports selected indicators from FortiSOAR in a valid STIX specification file",
+          "collection": "/api/3/workflow_collections/6ba2fe73-1eef-40a9-89e8-6b81be363eba",
+          "tag": null,
+          "isActive": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/8817f1ad-587b-4d12-9979-5253cfd09b26",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Attachment",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "name": "{{vars.input.params.enterTheSTIXFileName}}",
+                  "filename": "/tmp/{{vars.input.params.enterTheSTIXFileName}}.json",
+                  "description": "",
+                  "request_headers": "",
+                  "multipart_headers": "",
+                  "extra_multipart_fields": ""
+                },
+                "version": "3.1.0",
+                "connector": "cyops_utilities",
+                "operation": "create_cyops_attachment",
+                "operationTitle": "File: Create Attachment from File",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "125",
+              "top": "840",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "uuid": "1416e1dc-81c3-4b6c-b9f2-0fcdb9fb4f7d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Export Indicator in STIX Spec",
+              "description": null,
+              "arguments": {
+                "name": "Stix2",
+                "config": "83a5c5a4-017e-4cbf-b549-64e0be9ef700",
+                "params": {
+                  "gen_role": "",
+                  "rec_role": "",
+                  "gen_class": "Organization",
+                  "rec_class": "Organization",
+                  "gen_sector": "",
+                  "rec_sector": "",
+                  "gen_org_name": "Alpha",
+                  "rec_org_name": "Beta",
+                  "spec_version": "2.1",
+                  "gen_spec_info": true,
+                  "rec_spec_info": true,
+                  "indicator_list": "{{vars.steps.Find_Indicators}}",
+                  "gen_contact_info": "",
+                  "rec_contact_info": "",
+                  "gen_org_description": "",
+                  "rec_org_description": ""
+                },
+                "version": "1.0.0",
+                "connector": "stix",
+                "operation": "create_indicators",
+                "operationTitle": "Export Indicators In STIX Spec",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "left": "300",
+              "top": "300",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "1a28b975-51f0-42f3-99ec-44eac0b3a4f9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Send Email",
+              "description": null,
+              "arguments": {
+                "config": "88c3d39c-2fa9-4731-b00d-29815008f17c",
+                "params": {
+                  "cc": "",
+                  "to": "{{vars.input.params.emailAddress}}",
+                  "bcc": "",
+                  "from": "noreply@example.com",
+                  "type": "Manual Input",
+                  "content": "STIX Spec Export at {{ arrow.utcnow() }}",
+                  "subject": "FSR STIX Spec File - {{vars.input.params.enterTheSTIXFileName}}",
+                  "iri_list": "",
+                  "body_type": "Plain Text",
+                  "file_name": "{{vars.input.params.enterTheSTIXFileName}}.zip",
+                  "file_path": "{{vars.steps.Compress_File.data['zip_filename']}}"
+                },
+                "version": "2.4.0",
+                "from_str": "soc@cybersponse.com",
+                "connector": "smtp",
+                "operation": "send_email_new",
+                "operationTitle": "Send Email",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "475",
+              "top": "975",
+              "stepType": "/api/3/workflow_step_types/4c0019b2-055c-44d0-968c-678a0c2d762e",
+              "uuid": "48f2252a-3c93-4423-993b-65c545cec8c5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Stix File",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "contents": "{{ vars.steps.Export_Indicator_in_STIX_Spec.data |to_nice_json |safe}}",
+                  "filename": "{{vars.input.params.enterTheSTIXFileName}}.json"
+                },
+                "version": "3.1.0",
+                "connector": "cyops_utilities",
+                "operation": "create_file_from_string",
+                "operationTitle": "File: Create File from String",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "300",
+              "top": "440",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "uuid": "64562f04-0254-485e-83d7-ddb84f0bbc41"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Compress File",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "filename": "/tmp/{{vars.input.params.enterTheSTIXFileName}}.json",
+                  "password": "",
+                  "compress_level": 6,
+                  "target_filename": "PlaybookExport-{{ arrow.utcnow().timestamp }}.zip"
+                },
+                "version": "3.1.0",
+                "connector": "cyops_utilities",
+                "operation": "zip_and_protect_file",
+                "operationTitle": "File: Zip",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "475",
+              "top": "840",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "uuid": "68131d7f-697a-4825-8569-5a9957aefa97"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "0a2f5cf0-a0f9-4506-8db0-cfb1303fdd2f",
+                "resources": [
+                  "indicators"
+                ],
+                "inputVariables": [
+                  {
+                    "name": "enterTheSTIXFileName",
+                    "type": "string",
+                    "label": "Enter the STIX file name",
+                    "tooltip": "",
+                    "dataType": "text",
+                    "formType": "text",
+                    "required": true,
+                    "_expanded": true,
+                    "useRecordFieldDefault": false
+                  },
+                  {
+                    "name": "doYouWantSendSTIXFileUsingEmail",
+                    "type": "boolean",
+                    "label": "Do you want send STIX file using Email",
+                    "title": "Checkbox",
+                    "usable": true,
+                    "tooltip": "If yes then specify the Email Address otherwise STIX file will be create as an Attachment in FortiSOAR",
+                    "dataType": "checkbox",
+                    "formType": "checkbox",
+                    "required": true,
+                    "_expanded": true,
+                    "mmdUpdate": true,
+                    "bulkAction": [],
+                    "collection": false,
+                    "dataSource": [],
+                    "searchable": true,
+                    "templateUrl": "app/components/form/fields/checkbox.html",
+                    "defaultValue": false,
+                    "inversedField": null,
+                    "displayTemplate": "%7B%7B%20itemValue%20%7D%7D",
+                    "lengthConstraint": false,
+                    "ownsRelationship": false,
+                    "allowedEncryption": false,
+                    "allowedGridColumn": true,
+                    "useRecordFieldDefault": false
+                  },
+                  {
+                    "name": "emailAddresses",
+                    "type": "string",
+                    "label": "Email Addresses",
+                    "title": "Email Field",
+                    "usable": true,
+                    "tooltip": "Multiple email addresses should be comma separated",
+                    "dataType": "email",
+                    "formType": "email",
+                    "required": false,
+                    "_expanded": true,
+                    "mmdUpdate": true,
+                    "collection": false,
+                    "searchable": true,
+                    "templateUrl": "app/components/form/fields/email.html",
+                    "defaultValue": null,
+                    "lengthConstraint": true,
+                    "allowedEncryption": true,
+                    "allowedGridColumn": true,
+                    "useRecordFieldDefault": false
+                  }
+                ],
+                "step_variables": {
+                  "input": {
+                    "params": {
+                      "emailAddresses": "{{vars.request.data[\"emailAddresses\"]}}",
+                      "enterTheSTIXFileName": "{{vars.request.data[\"enterTheSTIXFileName\"]}}",
+                      "doYouWantSendSTIXFileUsingEmail": "{{vars.request.data[\"doYouWantSendSTIXFileUsingEmail\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "_promptexpanded": true,
+                "displayConditions": {
+                  "indicators": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "left": "300",
+              "top": "30",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "8817f1ad-587b-4d12-9979-5253cfd09b26"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find Indicators",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "object",
+                      "field": "reputation",
+                      "value": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
+                      "_value": {
+                        "@id": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
+                        "itemValue": "Malicious"
+                      },
+                      "operator": "eq"
+                    }
+                  ],
+                  "__selectFields": [
+                    "lastSeen",
+                    "firstSeen",
+                    "value",
+                    "description",
+                    "sources",
+                    "typeofindicator",
+                    "reputation",
+                    "createDate"
+                  ]
+                },
+                "module": "indicators?$limit=30",
+                "checkboxFields": true,
+                "step_variables": []
+              },
+              "status": null,
+              "left": "300",
+              "top": "165",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "uuid": "b2b3d576-005f-4051-a401-7cd58ddd4042"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Pretty Json",
+              "description": null,
+              "arguments": {
+                "config": "0ce9c578-9be3-4171-9a9f-f4a4e08b6425",
+                "params": {
+                  "python_function": "import json\n\nwith open('/tmp/{{vars.input.params.enterTheSTIXFileName}}.json', 'r') as json_file:\n    json_object = json.load(json_file)\njson_file.close()\njson_object = json.dumps(json_object, indent=2)\nwith open('/tmp/{{vars.input.params.enterTheSTIXFileName}}.json', 'w') as outfile:\n    outfile.write(json_object)"
+                },
+                "version": "1.2.4",
+                "connector": "code-snippet",
+                "operation": "python_inline",
+                "ignore_errors": true,
+                "operationTitle": "Execute Python Code",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "300",
+              "top": "570",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "uuid": "b7acd593-c7ba-4034-8759-3544645aedcf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Is File Send Over the Email",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Yes",
+                    "step_iri": "/api/3/workflow_steps/68131d7f-697a-4825-8569-5a9957aefa97",
+                    "condition": "{{ vars.input.params.doYouWantSendSTIXFileUsingEmail }}",
+                    "step_name": "Compress File"
+                  },
+                  {
+                    "option": "No",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/1416e1dc-81c3-4b6c-b9f2-0fcdb9fb4f7d",
+                    "step_name": "Create Attachment"
+                  }
+                ]
+              },
+              "status": null,
+              "left": "300",
+              "top": "705",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "uuid": "ee3374b6-aaf6-4dba-923f-88a5e290d16e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "05605b18-9148-4630-863a-ae2b6767fbaf",
+              "name": "Compress File -> Send Email",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/48f2252a-3c93-4423-993b-65c545cec8c5",
+              "sourceStep": "/api/3/workflow_steps/68131d7f-697a-4825-8569-5a9957aefa97"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "1fd3b937-80ec-419c-a115-0a7a0b919f60",
+              "name": "Is File Send Over the Email -> Create Attachment",
+              "label": "No",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/1416e1dc-81c3-4b6c-b9f2-0fcdb9fb4f7d",
+              "sourceStep": "/api/3/workflow_steps/ee3374b6-aaf6-4dba-923f-88a5e290d16e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "81f7cd5d-0414-4dc3-9f09-c3110e037f55",
+              "name": "Export Indicator in STIX Spec -> Create Stix File",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/64562f04-0254-485e-83d7-ddb84f0bbc41",
+              "sourceStep": "/api/3/workflow_steps/1a28b975-51f0-42f3-99ec-44eac0b3a4f9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "92c7660c-9fdf-4d9c-9822-4afc5e7c8a4f",
+              "name": "Create Stix File -> Pretty Json",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/b7acd593-c7ba-4034-8759-3544645aedcf",
+              "sourceStep": "/api/3/workflow_steps/64562f04-0254-485e-83d7-ddb84f0bbc41"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "9eb625cb-56ce-444f-8b5f-9a41333fde94",
+              "name": "Is File Send Over the Email -> Compress File",
+              "label": "Yes",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/68131d7f-697a-4825-8569-5a9957aefa97",
+              "sourceStep": "/api/3/workflow_steps/ee3374b6-aaf6-4dba-923f-88a5e290d16e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "a2b2578c-5ea8-4aa1-8799-728929db8ebc",
+              "name": "Pretty Json -> Is File Send Over the Email",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/ee3374b6-aaf6-4dba-923f-88a5e290d16e",
+              "sourceStep": "/api/3/workflow_steps/b7acd593-c7ba-4034-8759-3544645aedcf"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "bb221931-d957-42dd-bf7f-f613bc874610",
+              "name": "Start -> Find Indicators",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/b2b3d576-005f-4051-a401-7cd58ddd4042",
+              "sourceStep": "/api/3/workflow_steps/8817f1ad-587b-4d12-9979-5253cfd09b26"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "bf497785-e832-45d5-876a-fa734d412200",
+              "name": "Find Indicators -> Export Indicator in STIX Spec",
+              "label": null,
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/1a28b975-51f0-42f3-99ec-44eac0b3a4f9",
+              "sourceStep": "/api/3/workflow_steps/b2b3d576-005f-4051-a401-7cd58ddd4042"
+            }
+          ],
+          "versions": null,
+          "lastModifyDate": 1623304635,
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "63d500aa-ccf7-4b4c-af35-9e43dce5d3de",
+          "recordTags": [
+            "STIX"
+          ],
+          "isPrivate": false,
+          "owners": []
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "STIX"
+  ]
+}

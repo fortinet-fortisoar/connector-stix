@@ -1,0 +1,308 @@
+{
+  "name": "stix",
+  "label": "STIX",
+  "version": "1.0.0",
+  "description": "Structured Threat Information Expression, is a language and serialization format for exchanging threat information in cyberspace. Using this connector we can Extract indicators from the submitted STIX file and also Exports selected indicators from FortiSOAR in a valid STIX specification ",
+  "publisher": "Fortinet",
+  "cs_approved": true,
+  "cs_compatible": true,
+  "category": "Information",
+  "icon_small_name": "small.png",
+  "icon_large_name": "large.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "STIX Specification Version",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "type": "select",
+        "options": [
+          "2.0",
+          "2.1"
+        ],
+        "name": "spec_version",
+        "description": "Specify STIX Specification file Version"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "extract_indicators",
+      "title": "Extract Indicators From STIX File",
+      "description": "Extract indicators from the submitted STIX file. Supports STIX 2.0 and STIX 2.1",
+      "category": "investigation",
+      "annotation": "extract_indicators",
+      "enabled": true,
+      "output_schema": [
+        {
+          "id": "",
+          "name": "",
+          "description": "",
+          "tags": [
+            ""
+          ],
+          "type": "",
+          "created": "",
+          "modified": "",
+          "indicators": {
+          },
+          "valid_from": "",
+          "spec_version": ""
+        }
+      ],
+      "parameters": [
+        {
+          "title": "Stix2 File IRI",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "file_id",
+          "description": "Specify Stix2 Json File IRI"
+        }
+      ]
+    },
+    {
+      "operation": "create_indicators",
+      "title": "Export Indicators In STIX Spec Format",
+      "description": "Exports selected indicators from FortiSOAR in a valid STIX spec, which can then be downloaded as a STIX file. Supports STIX 2.0 and STIX 2.1",
+      "category": "investigation",
+      "annotation": "create_indicators",
+      "enabled": true,
+      "output_schema": {
+        "type": "",
+        "id": "",
+        "objects": [
+          {
+            "type": "",
+            "spec_version": "",
+            "id": "",
+            "created_by_ref": "",
+            "created": "",
+            "modified": "",
+            "name": "",
+            "description": "",
+            "indicator_types": [
+              ""
+            ],
+            "pattern": "",
+            "pattern_type": "",
+            "valid_from": ""
+          },
+          {
+            "type": "",
+            "spec_version": "",
+            "id": "",
+            "created": "",
+            "modified": "",
+            "name": "",
+            "roles": [
+            ],
+            "identity_class": "",
+            "sectors": [
+            ],
+            "contact_information": ""
+          },
+          {
+            "type": "",
+            "spec_version": "",
+            "id": "",
+            "created": "",
+            "modified": "",
+            "name": "",
+            "roles": [
+              ""
+            ],
+            "identity_class": "",
+            "sectors": [
+              ""
+            ],
+            "contact_information": ""
+          },
+          {
+            "type": "",
+            "spec_version": "",
+            "id": "",
+            "created_by_ref": "",
+            "created": "",
+            "modified": "",
+            "first_seen": "",
+            "last_seen": "",
+            "count": 1,
+            "sighting_of_ref": "",
+            "where_sighted_refs": [
+              ""
+            ]
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "title": "FortiSOAR Indicator List",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "indicator_list",
+          "description": "Specify list FortiSOAR Indicator in JSON format"
+        },
+        {
+          "title": "Add Identity Details (For Indicator Source)",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": true,
+          "type": "checkbox",
+          "onchange": {
+            "true": [
+              {
+                "title": "Name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "gen_org_name",
+                "placeholder": "e.g., an individual or organization",
+                "description": "Specify the name of source Identity."
+              },
+              {
+                "title": "Class",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "gen_class",
+                "placeholder": "organization",
+                "tooltip": "The type of entity that source Identity describes, e.g., an individual or organization.",
+                "description": "The type of entity that source Identity describes, e.g., an individual or organization."
+              },
+              {
+                "title": "Description",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "gen_org_description",
+                "description": "A description that provides more details and context about the source Identity, potentially including its purpose and its key characteristics."
+              },
+              {
+                "title": "Role",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "gen_role",
+                "placeholder": "Cyber Security",
+                "tooltip": "The list of roles that source Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer).",
+                "description": "The list of roles that source Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer). "
+              },
+              {
+                "title": "Sector",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "gen_sector",
+                "placeholder": "technology",
+                "tooltip": "The industry sectors that source Identity belongs to.",
+                "description": "The industry sectors that source Identity belongs to."
+              },
+              {
+                "title": "Email ID",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "gen_contact_info",
+                "tooltip": "The contact information (e-mail, phone number, etc.) for source Identity.",
+                "description": "The contact information (e-mail, phone number, etc.) for source Identity."
+              }
+            ]
+          },
+          "name": "gen_spec_info",
+          "tooltip": "Add details of Identity who is generating/sharing the threat information",
+          "description": "Add details of Identity who is generating/sharing the threat information"
+        },
+        {
+          "title": "Add Identity Details (For Receiving Entity)",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "checkbox",
+          "value": true,
+          "onchange": {
+            "true": [
+              {
+                "title": "Name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "rec_org_name",
+                "placeholder": "e.g., an individual or organization",
+                "description": "The name of Receiving Identity."
+              },
+              {
+                "title": "Class",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "rec_class",
+                "placeholder": "organization",
+                "tooltip": "The type of entity that Receiving Identity describes, e.g., an individual or organization.",
+                "description": "The type of entity that Receiving Identity describes, e.g., an individual or organization."
+              },
+              {
+                "title": "Description",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "rec_org_description",
+                "description": "A description that provides more details and context about the Receiving Identity, potentially including its purpose and its key characteristics."
+              },
+              {
+                "title": "Role",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "rec_role",
+                "placeholder": "Cyber Security",
+                "tooltip": "The list of roles that Receiving Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer).",
+                "description": "The list of roles that Receiving Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer). "
+              },
+              {
+                "title": "Sector",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "rec_sector",
+                "placeholder": "technology",
+                "tooltip": "The industry sectors that Receiving Identity belongs to.",
+                "description": "The industry sectors that Receiving Identity belongs to."
+              },
+              {
+                "title": "Email ID",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "rec_contact_info",
+                "tooltip": "The contact information (e-mail, phone number, etc.) for Receiving Identity.",
+                "description": "The contact information (e-mail, phone number, etc.) for Receiving Identity."
+              }
+            ]
+          },
+          "name": "rec_spec_info",
+          "tooltip": "Add details of Identity who is intended to receive the threat information ",
+          "description": "Add details of Identity who is intended to receive the threat information "
+        }
+      ]
+    }
+  ]
+}
