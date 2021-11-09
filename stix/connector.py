@@ -22,4 +22,8 @@ class Stix(Connector):
             raise ConnectorError('{}'.format(err))
 
     def check_health(self, config):
-        return _check_health(config)
+        try:
+            return _check_health(config)
+        except Exception as e:
+            logger.exception("An exception occurred {}".format(e))
+            raise ConnectorError(e)

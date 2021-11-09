@@ -1,21 +1,26 @@
+"""
+Copyright start
+Copyright (C) 2008 - 2021 Fortinet Inc.
+All rights reserved.
+FORTINET CONFIDENTIAL & FORTINET PROPRIETARY SOURCE CODE
+Copyright end
+"""
 import ast
 import datetime
 import json
-import re
+import time
 from os.path import join
 
 import html2text
 import requests
-from connectors.core.connector import get_logger, ConnectorError
+from connectors.cyops_utilities.builtins import extract_artifacts, create_file_from_string
 from django.conf import settings
-from ioc_finder import find_iocs
 from stix2validator import validate_string
 
+from connectors.core.connector import get_logger, ConnectorError
 from .constants import *
 
 logger = get_logger('stix')
-ipv4cidrRegex = r'\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(?:\[\.\]|\.)){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\/([0-9]|[1-2][0-9]|3[0-2]))\b'  # noqa: E501
-ipv6cidrRegex = r'\b(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))\b'  # noqa: E501
 
 
 def _make_request(url, method, body=None):
@@ -39,6 +44,94 @@ def _make_request(url, method, body=None):
         raise ConnectorError(str(err))
 
 
+def get_output_schema(config, params, *args, **kwargs):
+    try:
+        if params.get('file_response'):
+            return ({
+                "md5": "",
+                "sha1": "",
+                "sha256": "",
+                "filename": "",
+                "content_length": "",
+                "content_type": ""
+            })
+        elif str(config.get('spec_version')) == "2.0":
+            return ({
+                "type": "",
+                "id": "",
+                "spec_version": "",
+                "objects": [
+                    {
+                        "type": "",
+                        "id": "",
+                        "created": "",
+                        "modified": "",
+                        "name": "",
+                        "description": "",
+                        "pattern": "",
+                        "valid_from": "",
+                        "revoked": "",
+                        "labels": [
+
+                        ],
+                        "object_marking_refs": [
+
+                        ]
+                    },
+                    {
+                        "type": "",
+                        "id": "",
+                        "created": "",
+                        "definition_type": "",
+                        "definition": {
+                            "tlp": ""
+                        }
+                    }
+                ]
+            })
+        else:
+            return ({
+                "type": "",
+                "id": "",
+                "objects": [
+                    {
+                        "type": "",
+                        "spec_version": "",
+                        "id": "",
+                        "created": "",
+                        "modified": "",
+                        "name": "",
+                        "description": "",
+                        "indicator_types": [
+
+                        ],
+                        "pattern": "",
+                        "pattern_type": "",
+                        "pattern_version": "",
+                        "valid_from": "",
+                        "revoked": "",
+                        "object_marking_refs": [
+
+                        ]
+                    },
+                    {
+                        "type": "",
+                        "spec_version": "",
+                        "id": "",
+                        "created": "",
+                        "definition_type": "",
+                        "name": "",
+                        "definition": {
+                            "tlp": ""
+                        }
+                    }
+                ]
+            })
+    except Exception as e:
+        logger.exception('An exception occurred {}'.format(e))
+        raise ConnectorError('An exception occurred {}'.format(e))
+
+
 def get_datetime(_epoch):
     try:
         pattern = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -48,57 +141,63 @@ def get_datetime(_epoch):
         raise ConnectorError(str(err))
 
 
-def indicator_ids(_indicators):
-    ind_id = []
-    for ind in _indicators:
-        ind_id.append(ind['id'])
-    return ind_id
-
-
-def html_text(_html):
-    h = html2text.HTML2Text()
-    return h.handle(_html).replace('\n', '').replace('#', '').replace('*', '').replace('-', '')
-
-
-def get_indicators_value(ioc_string):
+def get_epoch(_date):
     try:
-        iocs = find_iocs(ioc_string)
-        del iocs['attack_mitigations']
-        del iocs['attack_tactics']
-        del iocs['attack_techniques']
-        for x in list(iocs):
-            if len(iocs[x]) == 0:
-                del iocs[x]
-        if "ipv4_cidrs" in iocs.keys():
-            del iocs['ipv4s']
-        if "email_addresses" in iocs.keys():
-            del iocs['email_addresses_complete']
-        if "urls" in iocs.keys():
-            for url in iocs['urls']:
-                if re.search(ipv4cidrRegex, url) or re.search(ipv6cidrRegex, url):
-                    iocs['urls'].remove(url)
-                if len(iocs['urls']) == 0:
-                    del iocs['urls']
-        return iocs
+        pattern = '%Y-%m-%dT%H:%M:%S.%fZ' if '.' in _date else '%Y-%m-%dT%H:%M:%SZ'
+        return int(time.mktime(time.strptime(_date, pattern)))
     except Exception as err:
         logger.exception(str(err))
         raise ConnectorError(str(err))
 
 
-def stix_spec_version(ioc, _version):
-    stix_spec = {
+def html_text(_html):
+    if _html is not None and _html != '':
+        h = html2text.HTML2Text()
+        return h.handle(_html).replace('\n', '').replace('#', '').replace('*', '').replace('-', '')
+    else:
+        return 'The description is not available'
+
+
+def max_age(params, ioc):
+    if params.get("expiry") is not None and params.get("expiry") != '':
+        return get_epoch(ioc["valid_from"]) + (params.get("expiry") * 86400)
+    elif "valid_until" in ioc.keys():
+        return get_epoch(ioc["valid_until"])
+    else:
+        return None
+
+
+def tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params):
+    if params.get('tlp') == 'RED':
+        return TLP_RED
+    if params.get('tlp') == 'AMBER':
+        return TLP_AMBER
+    if params.get('tlp') == 'GREEN':
+        return TLP_GREEN
+    if params.get('tlp') == 'WHITE':
+        return TLP_WHITE
+
+
+def stix_spec(ioc, _version, params):
+    return {
         "type": "indicator",
         "spec_version": _version,
         "id": ioc["id"],
-        "created": ioc["created"],
-        "modified": ioc["modified"],
-        "tags": ioc["indicator_types"] if _version == "2.1" else ioc['labels'],
+        "created": get_epoch(ioc["created"]),
+        "modified": get_epoch(ioc["modified"]),
+        "tags": ioc["indicator_types"] if "indicator_types" in ioc else ioc['labels'],
         "name": ioc["name"],
-        "description": ioc["description"],
-        "indicators": get_indicators_value(ioc["pattern"]),
-        "valid_from": ioc["valid_from"]
+        "description": ioc["description"] if "description" in ioc else None,
+        "indicators": extract_artifacts(data=ioc["pattern"]),
+        "valid_from": get_epoch(ioc["valid_from"]),
+        "confidence": params.get("confidence") if params.get("confidence") is not None and params.get(
+            "confidence") != '' else 0,
+        "reputation": REPUTATION_MAP.get(params.get("reputation")) if params.get(
+            'Suspicious') is not None and params.get("Suspicious") != '' else REPUTATION_MAP.get("Suspicious"),
+        "tlp": TLP_MAP.get(params.get("tlp")) if params.get("tlp") is not None and params.get(
+            "tlp") != '' else TLP_MAP.get("White"),
+        "valid_until": max_age(params, ioc)
     }
-    return stix_spec
 
 
 def create_indicators(config, params):
@@ -106,105 +205,52 @@ def create_indicators(config, params):
         indicators = []
         indicator_list = params.get('indicator_list')
         if indicator_list:
-            alpha_param_payload = {ALPHA_PARAM_MAP.get(k, k): v for k, v in params.items() if
-                                   'gen' in k and v is not None and v != ''}
-            alpha_param_payload.pop('gen_spec_info')
-            beta_param_payload = {BETA_PARAM_MAP.get(k, k): v for k, v in params.items() if
-                                  'rec' in k and v is not None and v != ''}
-            beta_param_payload.pop('rec_spec_info')
             if str(config.get('spec_version')) == "2.1":
-                from stix2.v21 import (Identity, Indicator, Sighting, Bundle)
-                alpha_param_payload.update({'type': 'identity'})
-                beta_param_payload.update({'type': 'identity'})
-                identityAlpha = Identity(**alpha_param_payload)
-                identityBeta = Identity(**beta_param_payload)
-                indicators.append(
-                    Indicator(created_by_ref=identityAlpha['id'],
-                              type='indicator',
-                              name=indicator_list[0]['reputation']['itemValue'] + "-" +
-                                   indicator_list[0]['typeofindicator']['itemValue'],
-                              description=html_text(indicator_list[0]['description']),
-                              indicator_types=[indicator_list[0]['reputation']['itemValue']],
-                              pattern='[' + INDICATOR_PARAM_MAP.get(
-                                  indicator_list[0]['typeofindicator']['itemValue']) + '=\'' +
-                                      indicator_list[0]['value'] + '\']',
-                              pattern_type='stix',
-                              created=get_datetime(indicator_list[0]['firstSeen']),
-                              modified=get_datetime(indicator_list[0]['lastSeen'])
-                              ))
-                indicator_list.pop(0)
+                from stix2.v21 import (Identity, MarkingDefinition, Indicator, Bundle, TLP_AMBER, TLP_RED, TLP_WHITE,
+                                       TLP_GREEN)
                 for ioc in indicator_list:
                     indicators.append(
-                        Indicator(created_by_ref=identityAlpha['id'],
-                                  type='indicator',
-                                  id=indicators[0]['id'],
-                                  name=ioc['reputation']['itemValue'] + "-" + ioc['typeofindicator']['itemValue'],
-                                  description=html_text(ioc['description']),
-                                  indicator_types=[ioc['reputation']['itemValue']],
-                                  pattern='[' + INDICATOR_PARAM_MAP.get(ioc['typeofindicator']['itemValue']) + '=\'' +
-                                          ioc['value'] + '\']',
-                                  pattern_type='stix',
-                                  created=get_datetime(ioc['firstSeen']),
-                                  modified=get_datetime(ioc['lastSeen'])
-                                  ))
-                sighting = Sighting(
-                    count=len(indicators),
-                    sighting_of_ref=indicators[0]['id'],
-                    created_by_ref=identityBeta['id'],
-                    where_sighted_refs=[identityBeta['id']],
-                    type="sighting"
-                )
-                bundle = Bundle(objects=[identityAlpha, identityBeta, sighting])
+                        Indicator(
+                            type='indicator',
+                            name=ioc['reputation']['itemValue'] + "-" + ioc['typeofindicator']['itemValue'],
+                            description=html_text(ioc['description']),
+                            indicator_types=[ioc['reputation']['itemValue']],
+                            pattern='[' + INDICATOR_PARAM_MAP.get(ioc['typeofindicator']['itemValue']) + '=\'' +
+                                    ioc['value'] + '\']',
+                            pattern_type='stix',
+                            created=get_datetime(ioc['firstSeen']),
+                            modified=get_datetime(ioc['lastSeen']),
+                            object_marking_refs=tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params)
+                        ))
+                bundle = Bundle(*indicators, tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params))
             else:
-                from stix2.v20 import (Identity, Indicator, Sighting, Bundle)
-                if 'roles' in alpha_param_payload:
-                    alpha_param_payload['labels'] = alpha_param_payload.pop('roles')
-                if 'roles' in beta_param_payload:
-                    beta_param_payload['labels'] = beta_param_payload.pop('roles')
-                identityAlpha = Identity(**alpha_param_payload)
-                identityBeta = Identity(**beta_param_payload)
-                indicators.append(
-                    Indicator(created_by_ref=identityAlpha['id'],
-                              type='indicator',
-                              name=indicator_list[0]['reputation']['itemValue'] + "-" +
-                                   indicator_list[0]['typeofindicator']['itemValue'],
-                              description=html_text(indicator_list[0]['description']),
-                              labels=[indicator_list[0]['reputation']['itemValue']],
-                              pattern='[' + INDICATOR_PARAM_MAP.get(
-                                  indicator_list[0]['typeofindicator']['itemValue']) + '=\'' +
-                                      indicator_list[0]['value'] + '\']',
-                              created=get_datetime(indicator_list[0]['firstSeen']),
-                              modified=get_datetime(indicator_list[0]['lastSeen'])
-                              ))
-                indicator_list.pop(0)
+                from stix2.v20 import (Identity, Indicator, MarkingDefinition, Bundle, TLP_AMBER, TLP_RED, TLP_GREEN,
+                                       TLP_WHITE)
                 for ioc in indicator_list:
                     indicators.append(
-                        Indicator(created_by_ref=identityAlpha['id'],
-                                  type='indicator',
-                                  id=indicators[0]['id'],
-                                  name=ioc['reputation']['itemValue'] + "-" + ioc['typeofindicator']['itemValue'],
-                                  description=html_text(ioc['description']),
-                                  labels=[ioc['reputation']['itemValue']],
-                                  pattern='[' + INDICATOR_PARAM_MAP.get(
-                                      ioc['typeofindicator']['itemValue']) + '=\'' + ioc['value'] + '\']',
-                                  created=get_datetime(ioc['firstSeen']),
-                                  modified=get_datetime(ioc['lastSeen'])
-                                  ))
-                sighting = Sighting(
-                    count=len(indicators),
-                    sighting_of_ref=indicators[0]['id'],
-                    created_by_ref=identityBeta['id'],
-                    where_sighted_refs=[identityBeta['id']],
-                    type="sighting"
-                )
-                bundle = Bundle(objects=[identityAlpha, identityBeta, sighting])
-            for i in indicators:
-                bundle['objects'].append(i)
+                        Indicator(
+                            type='indicator',
+                            name=ioc['reputation']['itemValue'] + "-" + ioc['typeofindicator']['itemValue'],
+                            # object_marking_refs=[marking_tlp_definition['id']],
+                            description=html_text(ioc['description']),
+                            labels=[
+                                ioc['reputation']['itemValue']
+                            ],
+                            pattern='[' + INDICATOR_PARAM_MAP.get(
+                                ioc['typeofindicator']['itemValue']) + '=\'' + ioc['value'] + '\']',
+                            created=get_datetime(ioc['firstSeen']),
+                            modified=get_datetime(ioc['lastSeen']),
+                            object_marking_refs=tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params)
+                        ))
+                bundle = Bundle(*indicators, tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params))
             results = validate_string(str(bundle))
             if results.is_valid:
-                return bundle
+                if params.get('file_response'):
+                    return create_file_from_string(contents=str(bundle), filename=params.get('filename'))
+                else:
+                    return bundle
             else:
-                raise ConnectorError("Invalid STIX Specification")
+                raise ConnectorError(results.errors[0])
         else:
             raise ConnectorError("Empty Indicator List")
 
@@ -220,26 +266,27 @@ def extract_indicators(config, params):
         file_id = params.get("file_id")
         spec_version = str(config.get("spec_version"))
         try:
-            from integrations.crudhub import download_file_from_cyops
-            res = download_file_from_cyops(file_id)
-            file_path = join('/tmp', res['cyops_file_path'])
+            if 'api/3/' in file_id:
+                from integrations.crudhub import download_file_from_cyops
+                res = download_file_from_cyops(file_id)
+                file_path = join('/tmp', res['cyops_file_path'])
+            else:
+                file_path = join('/tmp', file_id)
             with open(file_path) as attachment:
                 json_data = attachment.read()
         except:
             json_data = _make_request(file_id, "get")
         data = json.loads(json_data)
         for ioc in data["objects"]:
-            if ioc[
-                "type"] == "indicator" and spec_version == "2.0" and "spec_version" not in ioc and "certificate" not in \
-                    ioc["pattern"]:
-                indicators.append(stix_spec_version(ioc, spec_version))
-            elif ioc["type"] == "indicator" and spec_version == "2.1" and ioc[
-                "spec_version"] == "2.1" and "certificate" not in ioc["pattern"]:
-                indicators.append(stix_spec_version(ioc, spec_version))
+            if ioc["type"] == "indicator" and "spec_version" in ioc.keys() and spec_version == "2.1":
+                indicators.append(stix_spec(ioc, spec_version, params))
+            elif ioc["type"] == "indicator" and "spec_version" not in ioc.keys() and spec_version == "2.0":
+                indicators.append(stix_spec(ioc, spec_version, params))
         if len(indicators) > 0:
             return indicators
         else:
-            raise ConnectorError("Not valid STIX specification file")
+            raise ConnectorError(
+                "Either Indicators not found in STIX file or Connector Configuration STIX Spec Version is not valid ")
     except Exception as Err:
         logger.exception(Err)
         raise ConnectorError(Err)
@@ -247,10 +294,11 @@ def extract_indicators(config, params):
 
 def _check_health(config):
     try:
-        response = re.search(ipv4cidrRegex, '8.8.8.8')
-        if response:
-            logger.info("Health check successfully completed.")
-        return True
+        if str(config.get('spec_version')) == "2.0" or str(config.get('spec_version')) == "2.1":
+            logger.info("connector available")
+            return True
+        else:
+            raise Exception("Not Valid STIX Specification version")
     except Exception as e:
         logger.error("Health check failed.")
         raise ConnectorError(e)
@@ -258,5 +306,6 @@ def _check_health(config):
 
 operations = {
     'extract_indicators': extract_indicators,
-    'create_indicators': create_indicators
+    'create_indicators': create_indicators,
+    'get_output_schema': get_output_schema
 }

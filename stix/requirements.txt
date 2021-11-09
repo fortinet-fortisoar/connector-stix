@@ -1,3 +1,4 @@
 ioc-finder==1.2.18
 stix2-validator
-html2text
+stix2==3.0.1
+html2text==2020.1.16
