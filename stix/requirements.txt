@@ -1,3 +1,5 @@
-ioc-finder==1.2.18
+ioc-finder
 stix2-validator
+stix2
 html2text
+taxii2-client

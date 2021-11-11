@@ -6,7 +6,7 @@
   "publisher": "Fortinet",
   "cs_approved": true,
   "cs_compatible": true,
-  "category": "Information",
+  "category": "Threat Intelligence",
   "icon_small_name": "small.png",
   "icon_large_name": "large.png",
   "help_online": "",
@@ -54,13 +54,77 @@
       ],
       "parameters": [
         {
-          "title": "Stix2 File IRI",
+          "title": "STIX2 File IRI or Name",
           "required": true,
           "editable": true,
           "visible": true,
           "type": "text",
           "name": "file_id",
-          "description": "Specify Stix2 Json File IRI"
+          "tooltip": "File containing the input in STIX2 format. You may provide the IRI if the file is uploaded to FortiSOAR, or the name of the file uploaded under /tmp on the server.",
+          "description": "File containing the input in STIX2 format. You may provide the IRI if the file is uploaded to FortiSOAR, or the name of the file uploaded under /tmp on the server."
+        },
+        {
+          "title": "Confidence",
+          "name": "confidence",
+          "type": "integer",
+          "tooltip": "Default Confidence score to be set for the feeds",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": 50,
+          "validation": {
+            "minlength": 0,
+            "maxlength": 100
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        {
+          "title": "Reputation",
+          "name": "reputation",
+          "type": "select",
+          "tooltip": "Default Reputation to be set for the feeds",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "Good",
+            "Suspicious",
+            "Malicious",
+            "No Reputation Available",
+            "TBD"
+          ],
+          "value": [
+            "Suspicious"
+          ]
+        },
+        {
+          "title": "TLP",
+          "name": "tlp",
+          "type": "select",
+          "tooltip": "Default TLP to be set for the feeds",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "Red",
+            "Amber",
+            "Green",
+            "White"
+          ],
+          "value": [
+            "White"
+          ]
+        },
+        {
+          "title": "Maximum Age (in Days)",
+          "name": "expiry",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry.",
+          "description": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry."
         }
       ]
     },
@@ -70,74 +134,9 @@
       "description": "Exports selected indicators from FortiSOAR in a valid STIX spec, which can then be downloaded as a STIX file. Supports STIX 2.0 and STIX 2.1",
       "category": "investigation",
       "annotation": "create_indicators",
+      "api_output_schema": "get_output_schema",
+      "output_schema": {},
       "enabled": true,
-      "output_schema": {
-        "type": "",
-        "id": "",
-        "objects": [
-          {
-            "type": "",
-            "spec_version": "",
-            "id": "",
-            "created_by_ref": "",
-            "created": "",
-            "modified": "",
-            "name": "",
-            "description": "",
-            "indicator_types": [
-              ""
-            ],
-            "pattern": "",
-            "pattern_type": "",
-            "valid_from": ""
-          },
-          {
-            "type": "",
-            "spec_version": "",
-            "id": "",
-            "created": "",
-            "modified": "",
-            "name": "",
-            "roles": [
-            ],
-            "identity_class": "",
-            "sectors": [
-            ],
-            "contact_information": ""
-          },
-          {
-            "type": "",
-            "spec_version": "",
-            "id": "",
-            "created": "",
-            "modified": "",
-            "name": "",
-            "roles": [
-              ""
-            ],
-            "identity_class": "",
-            "sectors": [
-              ""
-            ],
-            "contact_information": ""
-          },
-          {
-            "type": "",
-            "spec_version": "",
-            "id": "",
-            "created_by_ref": "",
-            "created": "",
-            "modified": "",
-            "first_seen": "",
-            "last_seen": "",
-            "count": 1,
-            "sighting_of_ref": "",
-            "where_sighted_refs": [
-              ""
-            ]
-          }
-        ]
-      },
       "parameters": [
         {
           "title": "FortiSOAR Indicator List",
@@ -149,160 +148,57 @@
           "description": "Specify list FortiSOAR Indicator in JSON format"
         },
         {
-          "title": "Add Identity Details (For Indicator Source)",
+          "title": "Traffic Light Protocol Level",
+          "name": "tlp",
+          "visible": true,
           "required": true,
           "editable": true,
-          "visible": true,
-          "value": true,
-          "type": "checkbox",
-          "onchange": {
-            "true": [
-              {
-                "title": "Name",
-                "required": true,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "gen_org_name",
-                "placeholder": "e.g., an individual or organization",
-                "description": "Specify the name of source Identity."
-              },
-              {
-                "title": "Class",
-                "required": true,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "gen_class",
-                "placeholder": "organization",
-                "tooltip": "The type of entity that source Identity describes, e.g., an individual or organization.",
-                "description": "The type of entity that source Identity describes, e.g., an individual or organization."
-              },
-              {
-                "title": "Description",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "gen_org_description",
-                "description": "A description that provides more details and context about the source Identity, potentially including its purpose and its key characteristics."
-              },
-              {
-                "title": "Role",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "gen_role",
-                "placeholder": "Cyber Security",
-                "tooltip": "The list of roles that source Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer).",
-                "description": "The list of roles that source Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer). "
-              },
-              {
-                "title": "Sector",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "gen_sector",
-                "placeholder": "technology",
-                "tooltip": "The industry sectors that source Identity belongs to.",
-                "description": "The industry sectors that source Identity belongs to."
-              },
-              {
-                "title": "Email ID",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "gen_contact_info",
-                "tooltip": "The contact information (e-mail, phone number, etc.) for source Identity.",
-                "description": "The contact information (e-mail, phone number, etc.) for source Identity."
-              }
-            ]
-          },
-          "name": "gen_spec_info",
-          "tooltip": "Add details of Identity who is generating/sharing the threat information",
-          "description": "Add details of Identity who is generating/sharing the threat information"
+          "type": "select",
+          "options": [
+            "RED",
+            "AMBER",
+            "GREEN",
+            "WHITE"
+          ],
+          "tooltip": "Traffic Light Protocol level for the observable.",
+          "description": "Traffic Light Protocol level for the observable."
         },
         {
-          "title": "Add Identity Details (For Receiving Entity)",
-          "required": true,
-          "editable": true,
+          "title": "Save Response to File",
+          "name": "file_response",
           "visible": true,
+          "required": false,
+          "editable": true,
           "type": "checkbox",
           "value": true,
           "onchange": {
             "true": [
               {
-                "title": "Name",
+                "title": "Filename",
+                "name": "filename",
+                "type": "text",
+                "visible": true,
+                "editable": true,
                 "required": true,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "rec_org_name",
-                "placeholder": "e.g., an individual or organization",
-                "description": "The name of Receiving Identity."
-              },
-              {
-                "title": "Class",
-                "required": true,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "rec_class",
-                "placeholder": "organization",
-                "tooltip": "The type of entity that Receiving Identity describes, e.g., an individual or organization.",
-                "description": "The type of entity that Receiving Identity describes, e.g., an individual or organization."
-              },
-              {
-                "title": "Description",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "rec_org_description",
-                "description": "A description that provides more details and context about the Receiving Identity, potentially including its purpose and its key characteristics."
-              },
-              {
-                "title": "Role",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "rec_role",
-                "placeholder": "Cyber Security",
-                "tooltip": "The list of roles that Receiving Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer).",
-                "description": "The list of roles that Receiving Identity performs (e.g., CEO, Domain Administrators, Doctors, Hospital, or Retailer). "
-              },
-              {
-                "title": "Sector",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "rec_sector",
-                "placeholder": "technology",
-                "tooltip": "The industry sectors that Receiving Identity belongs to.",
-                "description": "The industry sectors that Receiving Identity belongs to."
-              },
-              {
-                "title": "Email ID",
-                "required": false,
-                "editable": true,
-                "visible": true,
-                "type": "text",
-                "name": "rec_contact_info",
-                "tooltip": "The contact information (e-mail, phone number, etc.) for Receiving Identity.",
-                "description": "The contact information (e-mail, phone number, etc.) for Receiving Identity."
+                "placeholder": "Eg. feeds.json",
+                "tooltip": "The file will be created under /tmp"
               }
             ]
           },
-          "name": "rec_spec_info",
-          "tooltip": "Add details of Identity who is intended to receive the threat information ",
-          "description": "Add details of Identity who is intended to receive the threat information "
+          "tooltip": "If enabled, the feed will be written to a file with this name, else returned as a JSON",
+          "description": "Specify the response field, If check then save the response in File else in JSON"
         }
       ]
+    },
+    {
+      "operation": "get_output_schema",
+      "annotation": "get_output_schema",
+      "description": "Generates output schema for other actions based on the input configuration",
+      "title": "Get Output Schema",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {}
     }
   ]
 }
