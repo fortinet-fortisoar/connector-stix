@@ -13,12 +13,16 @@ from os.path import join
 
 import html2text
 import requests
-from connectors.cyops_utilities.builtins import extract_artifacts, create_file_from_string
+from connectors.cyops_utilities.builtins import create_file_from_string, extract_artifacts
 from django.conf import settings
 from stix2validator import validate_string
-
 from connectors.core.connector import get_logger, ConnectorError
 from .constants import *
+try:
+    from integrations.crudhub import trigger_ingest_playbook, download_file_from_cyops
+except:
+    # ignore. lower FSR version
+    pass
 
 logger = get_logger('stix')
 
@@ -41,113 +45,104 @@ def _make_request(url, method, body=None):
         return response.content
     except Exception as err:
         logger.exception(str(err))
-        raise ConnectorError(str(err))
 
 
 def get_output_schema(config, params, *args, **kwargs):
-    try:
-        if params.get('file_response'):
-            return ({
-                "md5": "",
-                "sha1": "",
-                "sha256": "",
-                "filename": "",
-                "content_length": "",
-                "content_type": ""
-            })
-        elif str(config.get('spec_version')) == "2.0":
-            return ({
-                "type": "",
-                "id": "",
-                "spec_version": "",
-                "objects": [
-                    {
-                        "type": "",
-                        "id": "",
-                        "created": "",
-                        "modified": "",
-                        "name": "",
-                        "description": "",
-                        "pattern": "",
-                        "valid_from": "",
-                        "revoked": "",
-                        "labels": [
+    mode = params.get('output_mode')
+    if mode == 'Save to File':
+        return ({
+            "md5": "",
+            "sha1": "",
+            "sha256": "",
+            "filename": "",
+            "content_length": "",
+            "content_type": ""
+        })
+    elif str(config.get('spec_version')) == "2.0":
+        return ({
+            "type": "",
+            "id": "",
+            "spec_version": "",
+            "objects": [
+                {
+                    "type": "",
+                    "id": "",
+                    "created": "",
+                    "modified": "",
+                    "name": "",
+                    "description": "",
+                    "pattern": "",
+                    "valid_from": "",
+                    "revoked": "",
+                    "labels": [
 
-                        ],
-                        "object_marking_refs": [
+                    ],
+                    "object_marking_refs": [
 
-                        ]
-                    },
-                    {
-                        "type": "",
-                        "id": "",
-                        "created": "",
-                        "definition_type": "",
-                        "definition": {
-                            "tlp": ""
-                        }
+                    ]
+                },
+                {
+                    "type": "",
+                    "id": "",
+                    "created": "",
+                    "definition_type": "",
+                    "definition": {
+                        "tlp": ""
                     }
-                ]
-            })
-        else:
-            return ({
-                "type": "",
-                "id": "",
-                "objects": [
-                    {
-                        "type": "",
-                        "spec_version": "",
-                        "id": "",
-                        "created": "",
-                        "modified": "",
-                        "name": "",
-                        "description": "",
-                        "indicator_types": [
+                }
+            ]
+        })
+    else:
+        return ({
+            "type": "",
+            "id": "",
+            "objects": [
+                {
+                    "type": "",
+                    "spec_version": "",
+                    "id": "",
+                    "created": "",
+                    "modified": "",
+                    "name": "",
+                    "description": "",
+                    "indicator_types": [
 
-                        ],
-                        "pattern": "",
-                        "pattern_type": "",
-                        "pattern_version": "",
-                        "valid_from": "",
-                        "revoked": "",
-                        "object_marking_refs": [
+                    ],
+                    "pattern": "",
+                    "pattern_type": "",
+                    "pattern_version": "",
+                    "valid_from": "",
+                    "revoked": "",
+                    "object_marking_refs": [
 
-                        ]
-                    },
-                    {
-                        "type": "",
-                        "spec_version": "",
-                        "id": "",
-                        "created": "",
-                        "definition_type": "",
-                        "name": "",
-                        "definition": {
-                            "tlp": ""
-                        }
+                    ]
+                },
+                {
+                    "type": "",
+                    "spec_version": "",
+                    "id": "",
+                    "created": "",
+                    "definition_type": "",
+                    "name": "",
+                    "definition": {
+                        "tlp": ""
                     }
-                ]
-            })
-    except Exception as e:
-        logger.exception('An exception occurred {}'.format(e))
-        raise ConnectorError('An exception occurred {}'.format(e))
+                }
+            ]
+        })
 
 
 def get_datetime(_epoch):
-    try:
+    if _epoch:
         pattern = '%Y-%m-%dT%H:%M:%S.%fZ'
         return str(datetime.datetime.utcfromtimestamp(_epoch).strftime(pattern))
-    except Exception as err:
-        logger.exception(str(err))
-        raise ConnectorError(str(err))
+    else:
+        None
 
 
 def get_epoch(_date):
-    try:
-        pattern = '%Y-%m-%dT%H:%M:%S.%fZ' if '.' in _date else '%Y-%m-%dT%H:%M:%SZ'
-        return int(time.mktime(time.strptime(_date, pattern)))
-    except Exception as err:
-        logger.exception(str(err))
-        raise ConnectorError(str(err))
+    pattern = '%Y-%m-%dT%H:%M:%S.%fZ' if '.' in _date else '%Y-%m-%dT%H:%M:%SZ'
+    return int(time.mktime(time.strptime(_date, pattern)))
 
 
 def html_text(_html):
@@ -155,7 +150,7 @@ def html_text(_html):
         h = html2text.HTML2Text()
         return h.handle(_html).replace('\n', '').replace('#', '').replace('*', '').replace('-', '')
     else:
-        return 'The description is not available'
+        return 'No description available'
 
 
 def max_age(params, ioc):
@@ -168,13 +163,13 @@ def max_age(params, ioc):
 
 
 def tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params):
-    if params.get('tlp') == 'RED':
+    if params.get('tlp') == 'Red':
         return TLP_RED
-    if params.get('tlp') == 'AMBER':
+    if params.get('tlp') == 'Amber':
         return TLP_AMBER
-    if params.get('tlp') == 'GREEN':
+    if params.get('tlp') == 'Green':
         return TLP_GREEN
-    if params.get('tlp') == 'WHITE':
+    if params.get('tlp') == 'White':
         return TLP_WHITE
 
 
@@ -182,25 +177,24 @@ def stix_spec(ioc, _version, params):
     return {
         "type": "indicator",
         "spec_version": _version,
-        "id": ioc["id"],
         "created": get_epoch(ioc["created"]),
         "modified": get_epoch(ioc["modified"]),
-        "tags": ioc["indicator_types"] if "indicator_types" in ioc else ioc['labels'],
+        "recordTags": ioc["indicator_types"] if "indicator_types" in ioc else ioc['labels'],
         "name": ioc["name"],
         "description": ioc["description"] if "description" in ioc else None,
-        "indicators": extract_artifacts(data=ioc["pattern"]),
+        "pattern": ioc["pattern"],
         "valid_from": get_epoch(ioc["valid_from"]),
         "confidence": params.get("confidence") if params.get("confidence") is not None and params.get(
             "confidence") != '' else 0,
         "reputation": REPUTATION_MAP.get(params.get("reputation")) if params.get(
-            'Suspicious') is not None and params.get("Suspicious") != '' else REPUTATION_MAP.get("Suspicious"),
+            'reputation') is not None and params.get("reputation") != '' else REPUTATION_MAP.get("Suspicious"),
         "tlp": TLP_MAP.get(params.get("tlp")) if params.get("tlp") is not None and params.get(
             "tlp") != '' else TLP_MAP.get("White"),
         "valid_until": max_age(params, ioc)
     }
 
 
-def create_indicators(config, params):
+def create_indicators(config, params, **kwargs):
     try:
         indicators = []
         indicator_list = params.get('indicator_list')
@@ -215,7 +209,7 @@ def create_indicators(config, params):
                             name=ioc['reputation']['itemValue'] + "-" + ioc['typeofindicator']['itemValue'],
                             description=html_text(ioc['description']),
                             indicator_types=[ioc['reputation']['itemValue']],
-                            pattern='[' + INDICATOR_PARAM_MAP.get(ioc['typeofindicator']['itemValue']) + '=\'' +
+                            pattern='[' + INDICATOR_PARAM_MAP.get(ioc['typeofindicator']['itemValue']) + ' = \'' +
                                     ioc['value'] + '\']',
                             pattern_type='stix',
                             created=get_datetime(ioc['firstSeen']),
@@ -231,13 +225,12 @@ def create_indicators(config, params):
                         Indicator(
                             type='indicator',
                             name=ioc['reputation']['itemValue'] + "-" + ioc['typeofindicator']['itemValue'],
-                            # object_marking_refs=[marking_tlp_definition['id']],
                             description=html_text(ioc['description']),
                             labels=[
                                 ioc['reputation']['itemValue']
                             ],
                             pattern='[' + INDICATOR_PARAM_MAP.get(
-                                ioc['typeofindicator']['itemValue']) + '=\'' + ioc['value'] + '\']',
+                                ioc['typeofindicator']['itemValue']) + ' = \'' + ioc['value'] + '\']',
                             created=get_datetime(ioc['firstSeen']),
                             modified=get_datetime(ioc['lastSeen']),
                             object_marking_refs=tlp(TLP_AMBER, TLP_RED, TLP_WHITE, TLP_GREEN, params)
@@ -253,14 +246,14 @@ def create_indicators(config, params):
                 raise ConnectorError(results.errors[0])
         else:
             raise ConnectorError("Empty Indicator List")
-
     except Exception as Err:
         logger.exception(Err)
         raise ConnectorError(Err)
 
 
-def extract_indicators(config, params):
+def extract_indicators(config, params, **kwargs):
     indicators = []
+    mode = params.get('output_mode')
     try:
         logger.info("Starting upload_object function")
         file_id = params.get("file_id")
@@ -283,10 +276,21 @@ def extract_indicators(config, params):
             elif ioc["type"] == "indicator" and "spec_version" not in ioc.keys() and spec_version == "2.0":
                 indicators.append(stix_spec(ioc, spec_version, params))
         if len(indicators) > 0:
-            return indicators
+            if mode == 'Create as Feed Records in FortiSOAR':
+                create_pb_id = params.get("create_pb_id")
+                trigger_ingest_playbook(indicators, create_pb_id, parent_env=kwargs.get('env', {}),
+                                        batch_size=1000, dedup_field="pattern")
+                return 'Successfully triggered playbooks to create feed records'
+            seen = set()
+            deduped_indicators = [x for x in indicators if
+                                  [x["pattern"] not in seen, seen.add(x["pattern"])][0]]
+            if mode == 'Save to File':
+                return create_file_from_string(contents=deduped_indicators, filename=params.get('filename'))
+            else:
+                return deduped_indicators
         else:
             raise ConnectorError(
-                "Either Indicators not found in STIX file or Connector Configuration STIX Spec Version is not valid ")
+                "Either the Input file is empty or the specification version for its content is not supported")
     except Exception as Err:
         logger.exception(Err)
         raise ConnectorError(Err)

@@ -1,4 +1,5 @@
-ioc-finder==1.2.18
+ioc-finder
 stix2-validator
-stix2==3.0.1
-html2text==2020.1.16
+stix2
+html2text
+taxii2-client
