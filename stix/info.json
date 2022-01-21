@@ -64,10 +64,52 @@
           "description": "File containing the input in STIX2 format. You may provide the IRI if the file is uploaded to FortiSOAR, or the name of the file uploaded under /tmp on the server."
         },
         {
+          "title": "Process Response As",
+          "name": "output_mode",
+          "visible": true,
+          "required": false,
+          "editable": true,
+          "type": "select",
+          "options": [
+            "Create as Feed Records in FortiSOAR",
+            "Save to File",
+            "Return as a JSON"
+          ],
+          "value": "Create as Feed Records in FortiSOAR",
+          "tooltip": "The Feed Data can either be returned as a JSON; written to a file on the FortiSOAR server; or Created as Feed Records in FortiSOAR",
+          "description": "Select the method of returning the Feed Data information. You can choose between the data being create as Feed records in FortiSOAR or returned in the JSON format (Return as a JSON) or being written to a file on the FortiSOAR server (Save to File). If you choose the 'Create as Feed Records in FortiSOAR' option, then in Record Creation Playbook IRI field, specify the IRI of the Create Record playbooks IRI, else if if you choose 'Save to File' option, then in the Filename field, specify the name of the file in which you want to save the feed information retrieved from IBM X-Force.",
+          "onchange": {
+            "Create as Feed Records in FortiSOAR": [
+              {
+                "title": "Record Creation Playbook IRI",
+                "description": "",
+                "type": "text",
+                "name": "create_pb_id",
+                "required": false,
+                "editable": true,
+                "visible": true
+              }
+            ],
+            "Return as a JSON": [],
+            "Save to File": [
+              {
+                "title": "Filename",
+                "name": "filename",
+                "type": "text",
+                "visible": true,
+                "editable": true,
+                "required": true,
+                "placeholder": "Eg. feeds.json",
+                "tooltip": "The file will be created under /tmp"
+              }
+            ]
+          }
+        },
+        {
           "title": "Confidence",
           "name": "confidence",
           "type": "integer",
-          "tooltip": "Default Confidence score to be set for the feeds",
+          "tooltip": "Default Confidence score to be set for the feeds",
           "required": false,
           "editable": true,
           "visible": true,
@@ -83,7 +125,7 @@
           "title": "Reputation",
           "name": "reputation",
           "type": "select",
-          "tooltip": "Default Reputation to be set for the feeds",
+          "tooltip": "Default Reputation to be set for the feeds",
           "required": false,
           "editable": true,
           "visible": true,
@@ -91,7 +133,7 @@
             "Good",
             "Suspicious",
             "Malicious",
-            "No Reputation Available",
+            "No Reputation Available",
             "TBD"
           ],
           "value": [
@@ -102,7 +144,7 @@
           "title": "TLP",
           "name": "tlp",
           "type": "select",
-          "tooltip": "Default TLP to be set for the feeds",
+          "tooltip": "Default TLP to be set for the feeds",
           "required": false,
           "editable": true,
           "visible": true,
@@ -117,14 +159,14 @@
           ]
         },
         {
-          "title": "Maximum Age (in Days)",
+          "title": "Maximum Age (in Days)",
           "name": "expiry",
           "type": "integer",
           "required": false,
           "editable": true,
           "visible": true,
-          "tooltip": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry.",
-          "description": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry."
+          "tooltip": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry.",
+          "description": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry."
         }
       ]
     },
@@ -155,11 +197,12 @@
           "editable": true,
           "type": "select",
           "options": [
-            "RED",
-            "AMBER",
-            "GREEN",
-            "WHITE"
+            "Red",
+            "Amber",
+            "Green",
+            "White"
           ],
+          "value": "Amber",
           "tooltip": "Traffic Light Protocol level for the observable.",
           "description": "Traffic Light Protocol level for the observable."
         },

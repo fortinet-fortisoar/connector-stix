@@ -16,7 +16,7 @@ class Stix(Connector):
         logger.info('In execute() Operation: {}'.format(operation))
         try:
             operation = operations.get(operation)
-            return operation(config, params)
+            return operation(config, params, **kwargs)
         except Exception as err:
             logger.error('{}'.format(err))
             raise ConnectorError('{}'.format(err))
