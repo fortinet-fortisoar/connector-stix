@@ -2,14 +2,14 @@
   "name": "stix",
   "label": "STIX",
   "version": "1.0.0",
-  "description": "Structured Threat Information Expression, is a language and serialization format for exchanging threat information in cyberspace. Using this connector we can Extract indicators from the submitted STIX file and also Exports selected indicators from FortiSOAR in a valid STIX specification ",
+  "description": "Structured Threat Information Expression, is a language and serialization format for exchanging threat information in cyberspace. Using this connector we can be used to extract indicators from the submitted STIX file and also export selected indicators from FortiSOAR in a valid STIX specification. <br/><br/>This connector has a dependency on the <a href=\\\"/content-hub/all-content/?contentType=solutionpack&amp;tag=ThreatIntelManagement\\\" target=\\\"_blank\\\" rel=\\\"noopener\\\">Threat Intel Management Solution Pack</a>.",
   "publisher": "Fortinet",
   "cs_approved": true,
   "cs_compatible": true,
   "category": "Threat Intelligence",
   "icon_small_name": "small.png",
   "icon_large_name": "large.png",
-  "help_online": "",
+  "help_online": "https://docs.fortinet.com/document/fortisoar/1.0.0/stix/338/stix-v1-0-0",
   "configuration": {
     "fields": [
       {
@@ -22,8 +22,9 @@
           "2.0",
           "2.1"
         ],
+        "value": "2.0",
         "name": "spec_version",
-        "description": "Specify STIX Specification file Version"
+        "description": "Select the STIX specification file version that you want to use to perform automated operations. You can choose between versions 2.1 (default) or 2.0."
       }
     ]
   },
@@ -31,7 +32,7 @@
     {
       "operation": "extract_indicators",
       "title": "Extract Indicators From STIX File",
-      "description": "Extract indicators from the submitted STIX file. Supports STIX 2.0 and STIX 2.1",
+      "description": "Extracts indicators from the submitted STIX file by specifying either the STIX2 File IRI or the name of the STIX file and other input parameters you have specified. This operation supports files submitted as per STIX specification 2.0 or 2.1.",
       "category": "investigation",
       "annotation": "extract_indicators",
       "enabled": true,
@@ -60,8 +61,8 @@
           "visible": true,
           "type": "text",
           "name": "file_id",
-          "tooltip": "File containing the input in STIX2 format. You may provide the IRI if the file is uploaded to FortiSOAR, or the name of the file uploaded under /tmp on the server.",
-          "description": "File containing the input in STIX2 format. You may provide the IRI if the file is uploaded to FortiSOAR, or the name of the file uploaded under /tmp on the server."
+          "tooltip": "Specify the IRI or the name of the file that contains the input in the STIX2 format.",
+          "description": "Specify the IRI or the name of the file that contains the input in the STIX2 format. If the file is uploaded to FortiSOAR, then you can specify the IRI of the file, else you can specify the name of the file uploaded to the /tmp folder on the server."
         },
         {
           "title": "Process Response As",
@@ -77,7 +78,7 @@
           ],
           "value": "Create as Feed Records in FortiSOAR",
           "tooltip": "The Feed Data can either be returned as a JSON; written to a file on the FortiSOAR server; or Created as Feed Records in FortiSOAR",
-          "description": "Select the method of returning the Feed Data information. You can choose between the data being create as Feed records in FortiSOAR or returned in the JSON format (Return as a JSON) or being written to a file on the FortiSOAR server (Save to File). If you choose the 'Create as Feed Records in FortiSOAR' option, then in Record Creation Playbook IRI field, specify the IRI of the Create Record playbooks IRI, else if if you choose 'Save to File' option, then in the Filename field, specify the name of the file in which you want to save the feed information retrieved from IBM X-Force.",
+          "description": "Select the method for processing the response of this operation. You can choose to return the data as a JSON (Return as a JSON), write it to a file on the FortiSOAR server (Save to File), or create it as feed records in FortiSOAR (Create as Feed Records in FortiSOAR). If you choose the 'Save to File' option, then in the Filename field specify the name of the file to be created on the FortiSOAR server. The file will be created in the /tmp folder on the server. If you choose the 'Create as Feed Records in FortiSOAR' option, then in the Record Creation Playbook IRI or UUID field specify the IRI or UUID of the playbook that will create the feed records in FortiSOAR.",
           "onchange": {
             "Create as Feed Records in FortiSOAR": [
               {
@@ -109,7 +110,8 @@
           "title": "Confidence",
           "name": "confidence",
           "type": "integer",
-          "tooltip": "Default Confidence score to be set for the feeds",
+          "tooltip": "Specify the confidence score to be set by default for the feeds returned by this operation. By default, this is set as 50",
+          "description": "Specify the confidence score to be set by default for the feeds returned by this operation. By default, this is set as 50.",
           "required": false,
           "editable": true,
           "visible": true,
@@ -125,7 +127,8 @@
           "title": "Reputation",
           "name": "reputation",
           "type": "select",
-          "tooltip": "Default Reputation to be set for the feeds",
+          "tooltip": "Select the reputation to be set by default for the feeds returned by this operation. You can choose between Good, Suspicious (default), Malicious, No Reputation Available, or TBD.",
+          "description": "Select the reputation to be set by default for the feeds returned by this operation. You can choose between Good, Suspicious (default), Malicious, No Reputation Available, or TBD.",
           "required": false,
           "editable": true,
           "visible": true,
@@ -144,7 +147,8 @@
           "title": "TLP",
           "name": "tlp",
           "type": "select",
-          "tooltip": "Default TLP to be set for the feeds",
+          "tooltip": "Select the TLP to be set by default for the feeds returned by this operation. You can choose between Red, Amber (default), Green, or White",
+          "description": "Select the TLP to be set by default for the feeds returned by this operation. You can choose between Red, Amber (default), Green, or White.",
           "required": false,
           "editable": true,
           "visible": true,
@@ -165,15 +169,15 @@
           "required": false,
           "editable": true,
           "visible": true,
-          "tooltip": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry.",
-          "description": "Default age for the feeds. The indicator expires on 'valid_until' date unless a different expiry is specified. If an expiry is specified, the indicator will be marked expired on valid_from + expiry."
+          "tooltip": "Specify the age (in days) to be set by default for the feeds returned by this operation. By default, this is set as 90. The indicator expires on the valid_until date unless a different expiry is specified. If an expiry is specified, then the indicator will be marked expired on valid_from + expiry",
+          "description": "Specify the age (in days) to be set by default for the feeds returned by this operation. By default, this is set as 90. The indicator expires on the valid_until date unless a different expiry is specified. If an expiry is specified, then the indicator will be marked expired on valid_from + expiry."
         }
       ]
     },
     {
       "operation": "create_indicators",
       "title": "Export Indicators In STIX Spec Format",
-      "description": "Exports selected indicators from FortiSOAR in a valid STIX spec, which can then be downloaded as a STIX file. Supports STIX 2.0 and STIX 2.1",
+      "description": "Exports selected indicators from FortiSOAR in a valid STIX spec, which can then be downloaded as a STIX file based on the FortiSOAR Indicator list and other input parameters you have specified. This operation supports files submitted as per STIX specification 2.0 or 2.1.",
       "category": "investigation",
       "annotation": "create_indicators",
       "api_output_schema": "get_output_schema",
@@ -187,7 +191,8 @@
           "visible": true,
           "type": "text",
           "name": "indicator_list",
-          "description": "Specify list FortiSOAR Indicator in JSON format"
+          "tooltip": "Specify a list of FortiSOAR indicators in the JSON format that you want to export in the STIX specifications format",
+          "description": "Specify a list of FortiSOAR indicators in the JSON format that you want to export in the STIX specifications format."
         },
         {
           "title": "Traffic Light Protocol Level",
@@ -203,8 +208,8 @@
             "White"
           ],
           "value": "Amber",
-          "tooltip": "Traffic Light Protocol level for the observable.",
-          "description": "Traffic Light Protocol level for the observable."
+          "tooltip": "Select the TLP to be set by default for the observables (feeds) that you want to export in the STIX specifications format. You can choose between Red, Amber (default), Green, or White",
+          "description": "Select the TLP to be set by default for the observables (feeds) that you want to export in the STIX specifications format. You can choose between Red, Amber (default), Green, or White."
         },
         {
           "title": "Save Response to File",
@@ -228,8 +233,8 @@
               }
             ]
           },
-          "tooltip": "If enabled, the feed will be written to a file with this name, else returned as a JSON",
-          "description": "Specify the response field, If check then save the response in File else in JSON"
+          "tooltip": "Select this option to write the exported indicators to a file on the FortiSOAR server based on the filename you have specified, else the indicators will be returned as a JSON",
+          "description": "Select this option to write the exported indicators to a file on the FortiSOAR server based on the filename you have specified, else the indicators will be returned as a JSON. If you select the 'Save Response to File' checkbox, then in the Filename field, specify the name of the file to be created on the FortiSOAR server. The file will contain the exported indicators and will be created in the /tmp folder on the server."
         }
       ]
     },
