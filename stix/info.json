@@ -2,7 +2,7 @@
   "name": "stix",
   "label": "STIX",
   "version": "1.0.0",
-  "description": "Structured Threat Information Expression, is a language and serialization format for exchanging threat information in cyberspace. Using this connector we can be used to extract indicators from the submitted STIX file and also export selected indicators from FortiSOAR in a valid STIX specification. <br/><br/>This connector has a dependency on the <a href=\"/content-hub/all-content/?contentType=solutionpack&amp;tag=ThreatIntelManagement\" target=\"_blank\" rel=\"noopener\">Threat Intel Management Solution Pack</a>",
+  "description": "Structured Threat Information Expression, is a language and serialization format for exchanging threat information in cyberspace. Using this connector we can be used to extract indicators from the submitted STIX file and also export selected indicators from FortiSOAR in a valid STIX specification. <br/><br/>This connector has a dependency on the <a href=\"/content-hub/all-content/?contentType=solutionpack&amp;tag=ThreatIntelManagement\" target=\"_blank\" rel=\"noopener\">Threat Intel Management Solution Pack</a>.",
   "publisher": "Fortinet",
   "cs_approved": true,
   "cs_compatible": true,
