@@ -6,15 +6,12 @@
       "name": "Sample - STIX - 1.0.0",
       "description": "Sample playbooks for \"STIX\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
       "visible": true,
-      "image": "playbook.png",
+      "image": "data:png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDYuMC1jMDA2IDc5LmRhYmFjYmIsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MDVhMzk2YTUtYjc4Yy00ZDUwLWE0NmItOGQyZDcyNmEzYzU1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjEyMzY2QjcwQkJCMTExRUJBMjlGRDYyRjM5MDUyQTRFIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEyMzY2QjZGQkJCMTExRUJBMjlGRDYyRjM5MDUyQTRFIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMS4yIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6YTEwMThkNWMtYmVhMC00MmFkLWI3YTYtY2E1OTBlMzhkOTQ5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjA1YTM5NmE1LWI3OGMtNGQ1MC1hNDZiLThkMmQ3MjZhM2M1NSIv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",
       "uuid": "6ba2fe73-1eef-40a9-89e8-6b81be363eba",
-      "id": 29,
-      "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
-      "createDate": 1642747461.047563,
-      "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
-      "modifyDate": 1642747461.047563,
-      "recordTags": [],
+      "id": 67,
       "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [],
       "workflows": [
         {
           "@type": "Workflow",
@@ -61,8 +58,8 @@
               "top": "165",
               "left": "125",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
-              "uuid": "0e08a874-2378-4554-91ab-83c9b51d5747",
-              "id": 526
+              "group": null,
+              "uuid": "0e08a874-2378-4554-91ab-83c9b51d5747"
             },
             {
               "@type": "WorkflowStep",
@@ -102,8 +99,8 @@
               "top": "30",
               "left": "125",
               "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
-              "uuid": "a8096d6a-41df-4a30-9b6c-c234fab1f5f9",
-              "id": 527
+              "group": null,
+              "uuid": "a8096d6a-41df-4a30-9b6c-c234fab1f5f9"
             }
           ],
           "routes": [
@@ -117,19 +114,17 @@
               "uuid": "3473c617-0b90-4cb4-832e-4d8135c917af"
             }
           ],
+          "groups": [],
           "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
           "uuid": "244c3a03-785f-49b5-83f2-3f1d65aa74d4",
-          "recordTags": [
-            "STIX"
-          ],
-          "id": 111,
-          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
-          "createDate": 1642747461.051814,
-          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
-          "modifyDate": 1642754780.413886,
+          "id": 647,
           "owners": [],
           "isPrivate": false,
-          "deletedAt": null
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "STIX"
+          ]
         },
         {
           "@type": "Workflow",
@@ -164,8 +159,8 @@
               "top": "120",
               "left": "240",
               "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
-              "uuid": "40a0be32-e8e6-4e4c-ab82-d00b037351c5",
-              "id": 562
+              "group": null,
+              "uuid": "40a0be32-e8e6-4e4c-ab82-d00b037351c5"
             },
             {
               "@type": "WorkflowStep",
@@ -204,8 +199,8 @@
               "top": "220",
               "left": "420",
               "stepType": "/api/3/workflow_step_types/7b221880-716b-4726-a2ca-5e568d330b3e",
-              "uuid": "958560c5-1318-471f-b037-2042dfc6f932",
-              "id": 715
+              "group": null,
+              "uuid": "958560c5-1318-471f-b037-2042dfc6f932"
             },
             {
               "@type": "WorkflowStep",
@@ -222,8 +217,8 @@
               "top": "40",
               "left": "40",
               "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
-              "uuid": "ff75128e-cd1f-4e5e-a438-05b8d8f174e1",
-              "id": 561
+              "group": null,
+              "uuid": "ff75128e-cd1f-4e5e-a438-05b8d8f174e1"
             }
           ],
           "routes": [
@@ -246,19 +241,17 @@
               "uuid": "405c69aa-cf8e-443c-b9ea-ebea2cedd740"
             }
           ],
+          "groups": [],
           "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
           "uuid": "2928194f-626b-4aaf-8a34-f93db81b3ebd",
-          "recordTags": [
-            "STIX"
-          ],
-          "id": 120,
-          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
-          "createDate": 1642749239.24012,
-          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
-          "modifyDate": 1642754780.472553,
+          "id": 648,
           "owners": [],
           "isPrivate": false,
-          "deletedAt": null
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "STIX"
+          ]
         },
         {
           "@type": "Workflow",
@@ -273,7 +266,7 @@
           "remoteExecutableFlag": false,
           "parameters": [],
           "synchronous": false,
-          "lastModifyDate": 1642746907,
+          "lastModifyDate": 1658485199,
           "collection": "/api/3/workflow_collections/6ba2fe73-1eef-40a9-89e8-6b81be363eba",
           "versions": [],
           "triggerStep": "/api/3/workflow_steps/fdd23ec4-1bd0-421c-bb38-a8a64892909e",
@@ -301,8 +294,8 @@
               "top": "560",
               "left": "120",
               "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
-              "uuid": "e4cf3ea0-ff4b-4fe6-9257-20afd71377a2",
-              "id": 528
+              "group": null,
+              "uuid": "e4cf3ea0-ff4b-4fe6-9257-20afd71377a2"
             },
             {
               "@type": "WorkflowStep",
@@ -343,8 +336,8 @@
               "top": "300",
               "left": "300",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
-              "uuid": "b81a1251-2835-4167-b765-62cab8408ef1",
-              "id": 529
+              "group": null,
+              "uuid": "b81a1251-2835-4167-b765-62cab8408ef1"
             },
             {
               "@type": "WorkflowStep",
@@ -354,7 +347,7 @@
                 "config": "88c3d39c-2fa9-4731-b00d-29815008f17c",
                 "params": {
                   "cc": "",
-                  "to": "{{vars.input.params.emailAddress}}",
+                  "to": "{{vars.input.params.emailAddresses}}",
                   "bcc": "",
                   "from": "noreply@example.com",
                   "type": "Manual Input",
@@ -365,7 +358,7 @@
                   "file_name": "{{vars.input.params.enterTheSTIXFileName}}.zip",
                   "file_path": "{{vars.steps.Compress_File.data['zip_filename']}}"
                 },
-                "version": "2.4.0",
+                "version": "2.4.3",
                 "from_str": "soc@cybersponse.com",
                 "connector": "smtp",
                 "operation": "send_email_new",
@@ -376,8 +369,8 @@
               "top": "705",
               "left": "475",
               "stepType": "/api/3/workflow_step_types/4c0019b2-055c-44d0-968c-678a0c2d762e",
-              "uuid": "dec575d4-23ff-42b7-bbce-c75d288fe57e",
-              "id": 530
+              "group": null,
+              "uuid": "dec575d4-23ff-42b7-bbce-c75d288fe57e"
             },
             {
               "@type": "WorkflowStep",
@@ -400,8 +393,8 @@
               "top": "570",
               "left": "475",
               "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
-              "uuid": "c6d98ec0-632a-4d8c-8462-416e6d4e2ed5",
-              "id": 531
+              "group": null,
+              "uuid": "c6d98ec0-632a-4d8c-8462-416e6d4e2ed5"
             },
             {
               "@type": "WorkflowStep",
@@ -422,6 +415,7 @@
                     "formType": "text",
                     "required": true,
                     "_expanded": true,
+                    "defaultValue": null,
                     "_previousName": "enterTheSTIXIlename",
                     "useRecordFieldDefault": false
                   },
@@ -434,7 +428,7 @@
                     "tooltip": "If yes, then please specify the email address. If email address is not provided, STIX file will be created as an attachment in FortiSOAR",
                     "dataType": "checkbox",
                     "formType": "checkbox",
-                    "required": true,
+                    "required": false,
                     "_expanded": true,
                     "mmdUpdate": true,
                     "bulkAction": [],
@@ -442,7 +436,7 @@
                     "dataSource": [],
                     "searchable": true,
                     "templateUrl": "app/components/form/fields/checkbox.html",
-                    "defaultValue": false,
+                    "defaultValue": null,
                     "_previousName": "doYouWantToSendSTIXFileThroughEmai",
                     "inversedField": null,
                     "displayTemplate": "%7B%7B%20itemValue%20%7D%7D",
@@ -461,17 +455,39 @@
                     "tooltip": "Multiple email addresses should be comma separated",
                     "dataType": "email",
                     "formType": "email",
-                    "required": false,
+                    "required": true,
                     "_expanded": true,
                     "mmdUpdate": true,
                     "collection": false,
                     "searchable": true,
                     "templateUrl": "app/components/form/fields/email.html",
                     "defaultValue": null,
+                    "visibilityQuery": {
+                      "sort": [],
+                      "limit": 30,
+                      "logic": "AND",
+                      "filters": [
+                        {
+                          "type": "primitive",
+                          "field": "doYouWantToSendSTIXFileThroughEmail",
+                          "value": "false",
+                          "operator": "isnull",
+                          "_operator": "isnull"
+                        },
+                        {
+                          "type": "primitive",
+                          "field": "doYouWantToSendSTIXFileThroughEmail",
+                          "value": true,
+                          "operator": "eq",
+                          "_operator": "eq"
+                        }
+                      ]
+                    },
                     "lengthConstraint": true,
                     "allowedEncryption": true,
                     "allowedGridColumn": true,
-                    "useRecordFieldDefault": false
+                    "useRecordFieldDefault": false,
+                    "_addVisibilityConditions": true
                   }
                 ],
                 "step_variables": {
@@ -501,8 +517,8 @@
               "top": "30",
               "left": "300",
               "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
-              "uuid": "fdd23ec4-1bd0-421c-bb38-a8a64892909e",
-              "id": 532
+              "group": null,
+              "uuid": "fdd23ec4-1bd0-421c-bb38-a8a64892909e"
             },
             {
               "@type": "WorkflowStep",
@@ -544,8 +560,8 @@
               "top": "165",
               "left": "300",
               "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
-              "uuid": "3b2a55d0-9595-4fc8-8cd2-5b3efa36158b",
-              "id": 533
+              "group": null,
+              "uuid": "3b2a55d0-9595-4fc8-8cd2-5b3efa36158b"
             },
             {
               "@type": "WorkflowStep",
@@ -554,16 +570,16 @@
               "arguments": {
                 "conditions": [
                   {
-                    "option": "Yes",
-                    "step_iri": "/api/3/workflow_steps/c6d98ec0-632a-4d8c-8462-416e6d4e2ed5",
-                    "condition": "{{ vars.input.params.doYouWantToSendSTIXFileThroughEmail }}",
-                    "step_name": "Compress File"
+                    "option": "No",
+                    "step_iri": "/api/3/workflow_steps/e4cf3ea0-ff4b-4fe6-9257-20afd71377a2",
+                    "condition": "{{ vars.input.params.doYouWantToSendSTIXFileThroughEmail == None or vars.input.params.doYouWantToSendSTIXFileThroughEmail==false }}",
+                    "step_name": "Create Attachment"
                   },
                   {
-                    "option": "No",
+                    "option": "Yes",
                     "default": true,
-                    "step_iri": "/api/3/workflow_steps/e4cf3ea0-ff4b-4fe6-9257-20afd71377a2",
-                    "step_name": "Create Attachment"
+                    "step_iri": "/api/3/workflow_steps/c6d98ec0-632a-4d8c-8462-416e6d4e2ed5",
+                    "step_name": "Compress File"
                   }
                 ]
               },
@@ -571,8 +587,8 @@
               "top": "435",
               "left": "300",
               "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
-              "uuid": "d67f745e-6e85-4362-894d-e8d9f852fdc7",
-              "id": 534
+              "group": null,
+              "uuid": "d67f745e-6e85-4362-894d-e8d9f852fdc7"
             }
           ],
           "routes": [
@@ -631,19 +647,17 @@
               "uuid": "4f87685f-e63d-4732-aa51-c4f83226fdd3"
             }
           ],
+          "groups": [],
           "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
           "uuid": "63d500aa-ccf7-4b4c-af35-9e43dce5d3de",
-          "recordTags": [
-            "STIX"
-          ],
-          "id": 112,
-          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
-          "createDate": 1642747461.056464,
-          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
-          "modifyDate": 1642754780.303622,
+          "id": 649,
           "owners": [],
           "isPrivate": false,
-          "deletedAt": null
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "STIX"
+          ]
         }
       ]
     }

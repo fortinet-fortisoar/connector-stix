@@ -13,10 +13,11 @@ from os.path import join
 
 import html2text
 import requests
-from connectors.cyops_utilities.builtins import create_file_from_string, extract_artifacts
+from connectors.core.connector import get_logger, ConnectorError
+from connectors.cyops_utilities.builtins import create_file_from_string
 from django.conf import settings
 from stix2validator import validate_string
-from connectors.core.connector import get_logger, ConnectorError
+
 from .constants import *
 
 try:
@@ -48,7 +49,7 @@ def _make_request(url, method, body=None):
         logger.exception(str(err))
 
 
-def get_output_schema(config, params, *args, **kwargs):
+def extract_indicators_output_schema(config, params, *args, **kwargs):
     mode = params.get('output_mode')
     if mode == 'Save to File':
         return ({
@@ -59,8 +60,86 @@ def get_output_schema(config, params, *args, **kwargs):
             "content_length": "",
             "content_type": ""
         })
-    elif str(config.get('spec_version')) == "2.0":
-        return ({
+    elif mode == 'Return as a JSON':
+        if str(config.get('spec_version')) == "2.0":
+            return ([{
+                "type": "",
+                "id": "",
+                "spec_version": "",
+                "objects": [
+                    {
+                        "type": "",
+                        "id": "",
+                        "created": "",
+                        "modified": "",
+                        "name": "",
+                        "description": "",
+                        "pattern": "",
+                        "valid_from": "",
+                        "revoked": "",
+                        "labels": [
+
+                        ],
+                        "object_marking_refs": [
+
+                        ]
+                    },
+                    {
+                        "type": "",
+                        "id": "",
+                        "created": "",
+                        "definition_type": "",
+                        "definition": {
+                            "tlp": ""
+                        }
+                    }
+                ]
+            }])
+        else:
+            return ([{
+                "type": "",
+                "id": "",
+                "objects": [
+                    {
+                        "type": "",
+                        "spec_version": "",
+                        "id": "",
+                        "created": "",
+                        "modified": "",
+                        "name": "",
+                        "description": "",
+                        "indicator_types": [
+
+                        ],
+                        "pattern": "",
+                        "pattern_type": "",
+                        "pattern_version": "",
+                        "valid_from": "",
+                        "revoked": "",
+                        "object_marking_refs": [
+
+                        ]
+                    },
+                    {
+                        "type": "",
+                        "spec_version": "",
+                        "id": "",
+                        "created": "",
+                        "definition_type": "",
+                        "name": "",
+                        "definition": {
+                            "tlp": ""
+                        }
+                    }
+                ]
+            }])
+    else:
+        return
+
+
+def create_indicators_output_schema(config, params, *args, **kwargs):
+    if str(config.get('spec_version')) == "2.0":
+        return ([{
             "type": "",
             "id": "",
             "spec_version": "",
@@ -92,9 +171,9 @@ def get_output_schema(config, params, *args, **kwargs):
                     }
                 }
             ]
-        })
+        }])
     else:
-        return ({
+        return ([{
             "type": "",
             "id": "",
             "objects": [
@@ -130,7 +209,7 @@ def get_output_schema(config, params, *args, **kwargs):
                     }
                 }
             ]
-        })
+        }])
 
 
 def get_datetime(_epoch):
@@ -314,5 +393,6 @@ def _check_health(config):
 operations = {
     'extract_indicators': extract_indicators,
     'create_indicators': create_indicators,
-    'get_output_schema': get_output_schema
+    'create_indicators_output_schema': create_indicators_output_schema,
+    'extract_indicators_output_schema': extract_indicators_output_schema
 }
