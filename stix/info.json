@@ -36,23 +36,8 @@
       "category": "investigation",
       "annotation": "extract_indicators",
       "enabled": true,
-      "output_schema": [
-        {
-          "id": "",
-          "name": "",
-          "description": "",
-          "tags": [
-            ""
-          ],
-          "type": "",
-          "created": "",
-          "modified": "",
-          "indicators": {
-          },
-          "valid_from": "",
-          "spec_version": ""
-        }
-      ],
+      "api_output_schema": "extract_indicators_output_schema",
+      "output_schema": {},
       "parameters": [
         {
           "title": "STIX2 File IRI or Name",
@@ -86,7 +71,7 @@
                 "description": "",
                 "type": "text",
                 "name": "create_pb_id",
-                "required": false,
+                "required": true,
                 "editable": true,
                 "visible": true
               }
@@ -180,7 +165,7 @@
       "description": "Exports selected indicators from FortiSOAR in a valid STIX spec, which can then be downloaded as a STIX file based on the FortiSOAR Indicator list and other input parameters you have specified. This operation supports files submitted as per STIX specification 2.0 or 2.1.",
       "category": "investigation",
       "annotation": "create_indicators",
-      "api_output_schema": "get_output_schema",
+      "api_output_schema": "create_indicators_output_schema",
       "output_schema": {},
       "enabled": true,
       "parameters": [
@@ -239,10 +224,20 @@
       ]
     },
     {
-      "operation": "get_output_schema",
-      "annotation": "get_output_schema",
+      "operation": "create_indicators_output_schema",
+      "annotation": "create_indicators_output_schema",
       "description": "Generates output schema for other actions based on the input configuration",
-      "title": "Get Output Schema",
+      "title": "Get Create Indicator Output Schema",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {}
+    },
+    {
+      "operation": "extract_indicators_output_schema",
+      "annotation": "extract_indicators_output_schema",
+      "description": "Generates output schema for other actions based on the input configuration",
+      "title": "Get Extract Indicator Output Schema",
       "enabled": true,
       "visible": false,
       "parameters": [],
